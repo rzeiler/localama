@@ -4,3 +4,15 @@
 .user-select {
     cursor: pointer;
 }
+
+.backdrop-blur {
+    backdrop-filter: blur(2px);
+}
+
+.shadow-sm {
+    transition: box-shadow 0.2s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}

@@ -17,30 +17,47 @@ const messages = computed(() =>
 );
 
 onMounted(() => {
+
+  const parent = messagesContainer.value.parentElement;
+  parent.addEventListener("scroll", handleScroll, { passive: true });
+
   if (!chatStore.activeSession && chatStore.sessions.length === 0) {
     chatStore.newSession(props.model);
   }
+
+  handleScroll();
 });
 
 watch(messages, () => {
-  scrollToBottom(true);
+  handleScroll();
 }, { deep: true });
 
-// Scroll-Funktion
-function scrollToBottom(force = false) {
+
+function handleScroll() {
   nextTick(() => {
-    const el = messagesContainer.value;
+    const el = messagesContainer.value.parentElement;
+
+
+    const tolerance = 2;
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight >= tolerance;
+
+    console.log(el.scrollHeight - el.scrollTop - el.clientHeight);
+
+    showNewMessageIndicator.value = atBottom;
+  });
+}
+
+
+// Scroll-Funktion
+function scrollToBottom(f) {
+  nextTick(() => {
+    const el = messagesContainer.value.parentElement;
     if (!el) return;
-
-    const tolerance = 50; // 50px Toleranzbereich
-    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight <= tolerance;
-
-    if (force || atBottom) {
-      el.scrollTop = el.scrollHeight;
-      showNewMessageIndicator.value = false;
-    } else {
-      showNewMessageIndicator.value = true;
-    }
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior: "smooth"
+    });
+    showNewMessageIndicator.value = false;
   });
 }
 
@@ -139,58 +156,56 @@ async function sendMessage() {
 </script>
 
 <template>
-  <div class="flex-fill d-flex flex-column  overflow-hidden">
-    <div class="flex-fill overflow-auto " ref="messagesContainer">
-      <div class="container ">
-        <div class="d-flex flex-column" v-for="(msg, index) in messages" :key="index" :class="['message', msg.role]">
-          <div class="d-flex   " :class="[
-            msg.role === 'user' ? 'justify-content-end' : 'flex-column'
-          ]">
 
-            <span :class="[
-              msg.role === 'user' ? 'bg-body-secondary mw-70' : ''
-            ]" class="p-2 rounded d-block  ">
-              <VueMarkdown :source="msg.content" />
+  <div ref="messagesContainer" class="flex-fill">
+    <div class="container ">
+      <div class="d-flex flex-column" v-for="(msg, index) in messages" :key="index" :class="['message', msg.role]">
+        <div class="d-flex   " :class="[
+          msg.role === 'user' ? 'justify-content-end' : 'flex-column'
+        ]">
 
-              <button class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="right" title="Nachricht löschen"
-                @click.stop="confirmDeleteMessage(index, $event)">
-                <i class="bi bi-eraser"></i>
-              </button>
+          <span :class="[
+            msg.role === 'user' ? 'bg-body-secondary mw-70' : ''
+          ]" class="p-2 rounded d-block  ">
+            <VueMarkdown :source="msg.content" />
+
+            <button class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="right" title="Nachricht löschen"
+              @click.stop="confirmDeleteMessage(index, $event)">
+              <i class="bi bi-eraser"></i>
+            </button>
 
 
-            </span>
+          </span>
 
-            <div v-if="msg.meta" class="fw-lighter">
-              {{ msg.meta.duration }}s |
-              {{ msg.meta.tokens }} tokens |
-              {{ msg.meta.model }} model
-            </div>
-          </div>
-        </div>
-        <div class="text-center">
-          <div v-if="loading" class="spinner-border spinner-border-sm" role="status">
-            <span class="visually-hidden">Loading...</span>
+          <div v-if="msg.meta" class="fw-lighter">
+            {{ msg.meta.duration }}s |
+            {{ msg.meta.tokens }} tokens |
+            {{ msg.meta.model }} model
           </div>
         </div>
       </div>
-
+      <div class="text-center">
+        <div v-if="loading" class="spinner-border spinner-border-sm" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
     </div>
-    <!-- „Neue Nachricht“ Button -->
-    <button v-if="showNewMessageIndicator" @click="scrollToBottom(true)" class="position-absolute btn btn-dark"
-      style="bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 10;">
-      Neue Nachricht
+  </div>
+  <div class="shadow sticky-bottom ">
+    <div class="container p-3">
+      <form @submit.prevent="sendMessage" class="input-group shadow">
+        <textarea ref="textareaRef" class="form-control" v-model="userInput" placeholder="Type a message..." rows="1"
+          autocomplete="off" @input="autoResize" @keydown.enter.prevent="sendMessage" />
+        <button :disabled="loading" class="input-group-text">
+          {{ loading ? "..." : "Send" }}
+        </button>
+      </form>
+    </div>
+  </div>
+  <div v-if="showNewMessageIndicator" @click="scrollToBottom()" class=" sticky-bottom d-flex justify-content-center "
+    style="bottom: 60px;">
+    <button class="btn btn-dark"> Neue Nachricht
     </button>
-    <div class="shadow">
-      <div class="container p-3">
-        <form @submit.prevent="sendMessage" class="input-group shadow">
-          <textarea ref="textareaRef" class="form-control" v-model="userInput" placeholder="Type a message..." rows="1"
-            autocomplete="off" @input="autoResize" @keydown.enter.prevent="sendMessage" />
-          <button :disabled="loading" class="input-group-text">
-            {{ loading ? "..." : "Send" }}
-          </button>
-        </form>
-      </div>
-    </div>
   </div>
 </template>
 

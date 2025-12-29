@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import Chat from './components/Chat.vue'
-import ChatSessions from './components/ChatSessions.vue'
+import ChatSessions from './components/Sessions.vue'
 import Models from './components/Models.vue'
 import UndoToast from "@/components/UndoToast.vue";
 
@@ -16,7 +16,7 @@ import UndoToast from "@/components/UndoToast.vue";
       </header>
       <ChatSessions />
     </div>
-    <div class="vh-100 p-0 m-0 flex-fill d-flex flex-column">
+    <div class="vh-100 p-0 m-0 flex-fill d-flex flex-column overflow-auto ">
       <Models />
       <Chat />
     </div>
