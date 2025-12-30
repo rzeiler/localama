@@ -21,10 +21,6 @@ onMounted(() => {
   const parent = messagesContainer.value.parentElement;
   parent.addEventListener("scroll", handleScroll, { passive: true });
 
-  if (!chatStore.activeSession && chatStore.sessions.length === 0) {
-    chatStore.newSession(props.model);
-  }
-
   handleScroll();
 });
 
@@ -59,6 +55,13 @@ function scrollToBottom(f) {
     });
     showNewMessageIndicator.value = false;
   });
+}
+
+
+function reMessage(content, event) {
+
+  userInput.value = content;
+  sendMessage();
 }
 
 function autoResize() {
@@ -169,12 +172,16 @@ async function sendMessage() {
           ]" class="p-2 rounded d-block  ">
             <VueMarkdown :source="msg.content" />
 
-            <button class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="right" title="Nachricht löschen"
-              @click.stop="confirmDeleteMessage(index, $event)">
-              <i class="bi bi-eraser"></i>
-            </button>
-
-
+            <div class="btn-group" role="group" aria-label="Nachricht aktionen">
+              <button class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="right"
+                title="Nachricht erneut senden" @click.stop="reMessage(msg.content, $event)">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+              <button class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="right" title="Nachricht löschen"
+                @click.stop="confirmDeleteMessage(index, $event)">
+                <i class="bi bi-eraser"></i>
+              </button>
+            </div>
           </span>
 
           <div v-if="msg.meta" class="fw-lighter">
@@ -192,8 +199,17 @@ async function sendMessage() {
     </div>
   </div>
   <div class="shadow sticky-bottom ">
-    <div class="container p-3">
-      <form @submit.prevent="sendMessage" class="input-group shadow">
+    <div class="container p-3  ">
+
+      
+        <transition-group name="fade" tag="div" class="d-flex justify-content-center"> 
+        <button v-if="showNewMessageIndicator" @click="scrollToBottom()" class="btn btn-dark"
+          style="margin-top: -40px;"> Neue Nachricht
+        </button>
+        </transition-group>
+     
+
+      <form @submit.prevent="sendMessage" class="input-group shadow mt-2">
         <textarea ref="textareaRef" class="form-control" v-model="userInput" placeholder="Type a message..." rows="1"
           autocomplete="off" @input="autoResize" @keydown.enter.prevent="sendMessage" />
         <button :disabled="loading" class="input-group-text">
@@ -202,15 +218,22 @@ async function sendMessage() {
       </form>
     </div>
   </div>
-  <div v-if="showNewMessageIndicator" @click="scrollToBottom()" class=" sticky-bottom d-flex justify-content-center "
-    style="bottom: 60px;">
-    <button class="btn btn-dark"> Neue Nachricht
-    </button>
-  </div>
+
 </template>
 
-<style>
+<style scoped>
 .mw-70 {
   max-width: 70%;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  
 }
 </style>

@@ -1,11 +1,13 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useChatStore } from "@/stores/chatStore.js";
 import { closeTooltip } from "@/utils/tooltip.js";
 import { confirm } from "@/utils/confirm";
 
 const chatStore = useChatStore();
 const editSessionId = ref(null);
+const ollamaVersion = ref(null);
+const versionError = ref(false);
 
 // Timer für Single vs Double Click
 let clickTimeout = null;
@@ -45,7 +47,6 @@ function handleRename(id, event) {
   editSessionId.value = id;
 }
 
-// ✅ Bestätigung + Löschen
 async function confirmDelete(id, event) {
 
   closeTooltip(event); // Tooltip sofort schließen
@@ -65,10 +66,22 @@ async function confirmDelete(id, event) {
   }
 }
 
+async function loadOllamaVersion() {
+  try {
+    const res = await fetch("http://localhost:11434/api/version");
+    const data = await res.json();
+    ollamaVersion.value = data.version;
+  } catch (err) {
+    versionError.value = true;
+  }
+}
+
+onMounted(loadOllamaVersion);
+
 </script>
 
 <template>
-  <div class="p-1">
+  <div class="p-1 flex-fill ">
     <transition-group name="fade" tag="div">
       <div v-for="s in chatStore.sessions" :key="s.id"
         class="d-flex align-items-center justify-content-between btn btn-light"
@@ -113,9 +126,20 @@ async function confirmDelete(id, event) {
       + Neuer Chat
     </button>
   </div>
+  <div class="text-muted small">
+    <template v-if="ollamaVersion">
+      Ollama v{{ ollamaVersion }}
+    </template>
+    <template v-else-if="versionError">
+      Ollama nicht erreichbar
+    </template>
+    <template v-else>
+      Lade Ollama-Version…
+    </template>
+  </div>
 </template>
 
-<style>
+<style scoped>
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease, transform 0.2s ease;

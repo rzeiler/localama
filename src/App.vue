@@ -9,7 +9,7 @@ import UndoToast from "@/components/UndoToast.vue";
 
 <template>
   <div class="vh-100 d-flex">
-    <div class="p-2 border-end shadow bg-body-tertiary w-300">
+    <div class="p-2 border-end shadow bg-body-tertiary w-300 d-flex flex-column">
       <header class="d-flex flex-column  align-items-center">
       <img src="/pwa-192x192.png" alt="Logo" width="50" height="50" class="me-2">
       <h1 class="display-6 mb-2">Localama</h1>
