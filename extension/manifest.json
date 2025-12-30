@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Localama",
+  "version": "1.0.0",
+  "description": "Local LLM UI als Chrome Extension",
+  "action": {
+    "default_title": "Localama"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "icons": {
+    "128": "pwa.png"
+  }
+}
