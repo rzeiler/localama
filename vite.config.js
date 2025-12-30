@@ -2,21 +2,24 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/page-creator/",
   plugins: [
     vue(),
     VitePWA({
       registerType: "autoUpdate", // Service Worker automatisch aktualisieren
       includeAssets: ["favicon.svg", "robots.txt"], // weitere Assets
       manifest: {
-        name: "Mein Chat App",
-        short_name: "ChatApp",
+        name: "localama",
+         id: "/localama/",
+        short_name: "localama",
         description: "Chat App mit Ollama",
         theme_color: "#ffffff",
+         display: "standalone",
+        start_url: "/localama/", 
         icons: [
           {
             src: "pwa-192x192.png",
