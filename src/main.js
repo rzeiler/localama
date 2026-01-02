@@ -1,6 +1,8 @@
 // Import our custom CSS
 import "./scss/styles.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import "./css/default.css";
+import "./css/github.css";
 
 import { createApp } from "vue";
 import App from "./App.vue";

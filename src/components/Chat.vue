@@ -117,7 +117,13 @@ async function sendMessage() {
   const body = {
     model: chatStore.selectedModel,
     messages: payload,
-    stream: false
+    stream: false,
+    options: {
+      num_predict: 256,
+      temperature: 0.7,
+      top_p: 0.9,
+      repeat_penalty: 1.1
+    }
   };
 
   try {
@@ -169,7 +175,7 @@ async function sendMessage() {
 
           <span :class="[
             msg.role === 'user' ? 'bg-body-secondary mw-70' : ''
-          ]" class="p-2 rounded d-block  ">
+          ]" class="p-2 rounded d-block border mt-5 ">
             <VueMarkdown :source="msg.content" />
 
             <div class="btn-group" role="group" aria-label="Nachricht aktionen">
@@ -184,7 +190,7 @@ async function sendMessage() {
             </div>
           </span>
 
-          <div v-if="msg.meta" class="fw-lighter">
+          <div v-if="msg.meta" class="p-2 fw-lighter mt-1">
             {{ msg.meta.duration }}s |
             {{ msg.meta.tokens }} tokens |
             {{ msg.meta.model }} model
@@ -201,13 +207,13 @@ async function sendMessage() {
   <div class="shadow sticky-bottom ">
     <div class="container p-3  ">
 
-      
-        <transition-group name="fade" tag="div" class="d-flex justify-content-center"> 
+
+      <transition-group name="fade" tag="div" class="d-flex justify-content-center">
         <button v-if="showNewMessageIndicator" @click="scrollToBottom()" class="btn btn-dark"
           style="margin-top: -40px;"> Neue Nachricht
         </button>
-        </transition-group>
-     
+      </transition-group>
+
 
       <form @submit.prevent="sendMessage" class="input-group shadow mt-2">
         <textarea ref="textareaRef" class="form-control" v-model="userInput" placeholder="Type a message..." rows="1"
@@ -234,6 +240,6 @@ async function sendMessage() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  
+
 }
 </style>
